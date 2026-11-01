@@ -228,9 +228,9 @@ def summarise(name, vals):
 
 
 def save_figure(model, Xte, yte, device, path, subj=None):
-    """t-SNE of the CLS embeddings on the test subjects: coloured by class
-    (left) and by subject (right). The right panel checks whether the embedding
-    is organised by person rather than by imagined movement."""
+    """t-SNE of the CLS embeddings on the test subjects, the same points coloured
+    by true class, by predicted class and by subject. Comparing the panels shows
+    whether visible clusters are the classes, the model's decision, or people."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -244,19 +244,20 @@ def save_figure(model, Xte, yte, device, path, subj=None):
     n = len(emb)
     emb2 = TSNE(n_components=2, perplexity=min(30, max(5, n // 4)),
                 init="pca", random_state=0).fit_transform(emb)
-    panels = 2 if subj is not None else 1
-    fig, axes = plt.subplots(1, panels, figsize=(5 * panels, 4), squeeze=False)
-    ax = axes[0, 0]
-    for c, name in [(0, "fists"), (1, "feet")]:
-        m = yte == c
-        ax.scatter(emb2[m, 0], emb2[m, 1], s=18, alpha=0.7, label=name)
-    ax.legend(); ax.set_title(f"coloured by class (test acc {acc:.2f})", fontsize=9)
+    panels = 3 if subj is not None else 2
+    fig, axes = plt.subplots(1, panels, figsize=(4.3 * panels, 4), squeeze=False)
+    for ax, lab, title in [(axes[0, 0], yte, f"TRUE class (test acc {acc:.2f})"),
+                           (axes[0, 1], pred, "PREDICTED class")]:
+        for c, name in [(0, "fists"), (1, "feet")]:
+            m = lab == c
+            ax.scatter(emb2[m, 0], emb2[m, 1], s=18, alpha=0.7, label=name)
+        ax.legend(); ax.set_title(title, fontsize=9)
     if subj is not None:
-        ax = axes[0, 1]
+        ax = axes[0, 2]
         for s_id, mk in zip(np.unique(subj), ["o", "s", "^", "D"]):
             m = subj == s_id
             ax.scatter(emb2[m, 0], emb2[m, 1], s=18, alpha=0.7, marker=mk, label=f"S{s_id}")
-        ax.legend(); ax.set_title("same points coloured by subject", fontsize=9)
+        ax.legend(); ax.set_title("subject", fontsize=9)
     fig.suptitle("YourModel CLS embeddings of held-out subjects 9-10 (t-SNE, first seed, "
                  "final-epoch weights)", fontsize=9)
     fig.tight_layout(); fig.savefig(path, dpi=130); plt.close(fig)
