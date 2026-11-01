@@ -21,6 +21,16 @@ CHANNEL_GROUPS = {
 }
 
 
+def _git_commit():
+    """Short hash of the code that produced a result (bookkeeping only)."""
+    import subprocess
+    try:
+        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"],
+                                       stderr=subprocess.DEVNULL, text=True).strip()
+    except Exception:
+        return "unknown"
+
+
 def set_seed(seed):
     np.random.seed(seed); torch.manual_seed(seed)
 
@@ -42,6 +52,7 @@ def main():
     ap.add_argument("--lr", type=float, default=1e-3)
     ap.add_argument("--bs", type=int, default=64)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--tag", default="", help="free-text label stored in results.jsonl")
     args = ap.parse_args()
     set_seed(args.seed)
 
@@ -90,7 +101,8 @@ def main():
 
     model.load_state_dict(best_state)
     result = dict(channels=args.channels, seed=args.seed, best_epoch=best_ep,
-                  test_acc=evaluate(model, X[te], y[te]), n_test=len(te))
+                  test_acc=evaluate(model, X[te], y[te]), n_test=len(te),
+                  tag=args.tag, commit=_git_commit())
     print(json.dumps(result))
     with open("results.jsonl", "a") as f:
         f.write(json.dumps(result) + "\n")
