@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+eegbci_data/
+mne_data/
+logs/raw/
