@@ -1,7 +1,4 @@
-# EEG × Deep Learning — 
-
-Two parts, 90 minutes each, with a 5-minute break between them. Read the
-problem-statement PDF for the full brief; this file is the map.
+# EEG × Deep Learning
 
 ```
 part1_diagnose/     Part 1 — a buggy motor-imagery pipeline you must fix and interpret
