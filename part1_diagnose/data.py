@@ -12,7 +12,8 @@ MONTAGE = ("colin27_1005" if "colin27_1005" in mne.channels.get_builtin_montages
            else "standard_1005")
 
 # Runs containing imagined both-fists vs both-feet trials.
-RUNS = [5, 9, 13]
+# PhysioNet EEGMMIDB: 5/9/13 = EXECUTED fists/feet, 6/10/14 = IMAGINED fists/feet.
+RUNS = [6, 10, 14]
 SUBJECTS = list(range(1, 11))
 
 L_FREQ, H_FREQ = 1.0, 40.0   # broadband filter applied to the continuous recording
