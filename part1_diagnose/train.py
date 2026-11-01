@@ -8,7 +8,7 @@ import json
 import numpy as np
 import torch
 import torch.nn as nn
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GroupShuffleSplit
 
 from data import build_dataset, SUBJECTS
 from model import EEGNet, count_params
@@ -70,11 +70,20 @@ def main():
     std = X.std(axis=(0, 2), keepdims=True) + 1e-6
     X = ((X - mean) / std).astype(np.float32)
 
-    # Subject-independent evaluation: hold out 20% for test, then 20% of the
-    # remainder for validation.
+    # Subject-independent evaluation: hold out 20% of SUBJECTS for test, then
+    # 25% of the remaining subjects for validation (10 subjects -> 6/2/2).
+    # Splitting trials instead would put the same person (even the same run)
+    # in train and test, letting the model memorise subject/session signatures.
     idx = np.arange(len(y))
-    tr, te = train_test_split(idx, test_size=0.2, stratify=y, random_state=args.seed)
-    tr, va = train_test_split(tr, test_size=0.2, stratify=y[tr], random_state=args.seed)
+    gss = GroupShuffleSplit(n_splits=1, test_size=0.2, random_state=args.seed)
+    tr, te = next(gss.split(idx, y, groups))
+    gss = GroupShuffleSplit(n_splits=1, test_size=0.25, random_state=args.seed)
+    tr_i, va_i = next(gss.split(tr, y[tr], groups[tr]))
+    tr, va = tr[tr_i], tr[va_i]
+    assert not (set(groups[tr]) & set(groups[te]) or set(groups[tr]) & set(groups[va])
+                or set(groups[va]) & set(groups[te])), "subject overlap between splits"
+    print(f"subjects  train {sorted(set(groups[tr].tolist()))}  "
+          f"val {sorted(set(groups[va].tolist()))}  test {sorted(set(groups[te].tolist()))}")
 
     n_ch, n_t = X.shape[1], X.shape[2]
     model = EEGNet(n_ch, n_t)
@@ -102,6 +111,7 @@ def main():
     model.load_state_dict(best_state)
     result = dict(channels=args.channels, seed=args.seed, best_epoch=best_ep,
                   test_acc=evaluate(model, X[te], y[te]), n_test=len(te),
+                  test_subjects=sorted(set(groups[te].tolist())),
                   tag=args.tag, commit=_git_commit())
     print(json.dumps(result))
     with open("results.jsonl", "a") as f:
