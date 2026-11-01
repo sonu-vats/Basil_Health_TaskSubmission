@@ -14,10 +14,16 @@ from data import build_dataset, SUBJECTS
 from model import EEGNet, count_params
 
 # Electrode groups for the channel-subset run (Task 3).
-# TODO: fill in "frontal" with the electrode names you choose.
+#  frontal : the prefrontal / anterior-frontal rows (Fp, AF), i.e. the sensors
+#            closest to the eyes and farthest from the sensorimotor strip.
+#            If these decode "fists (target at TOP) vs feet (target at BOTTOM)",
+#            the prime suspect is vertical eye movement (EOG), not motor cortex.
+#  central : control group of similar size over the sensorimotor strip
+#            (hand areas ~C3/C4, foot area ~Cz) where genuine MI-ERD lives.
 CHANNEL_GROUPS = {
     "all": None,
-    "frontal": [],
+    "frontal": ["Fp1", "Fpz", "Fp2", "AF7", "AF3", "AFz", "AF4", "AF8"],
+    "central": ["FC3", "FCz", "FC4", "C3", "Cz", "C4", "CP3", "CPz", "CP4"],
 }
 
 
