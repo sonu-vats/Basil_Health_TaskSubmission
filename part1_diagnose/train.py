@@ -65,11 +65,6 @@ def main():
     print(f"data: {X.shape}, subjects={len(np.unique(groups))}, "
           f"class balance={np.bincount(y)}")
 
-    # Per-channel z-scoring.
-    mean = X.mean(axis=(0, 2), keepdims=True)
-    std = X.std(axis=(0, 2), keepdims=True) + 1e-6
-    X = ((X - mean) / std).astype(np.float32)
-
     # Subject-independent evaluation: hold out 20% of SUBJECTS for test, then
     # 25% of the remaining subjects for validation (10 subjects -> 6/2/2).
     # Splitting trials instead would put the same person (even the same run)
@@ -84,6 +79,12 @@ def main():
                 or set(groups[va]) & set(groups[te])), "subject overlap between splits"
     print(f"subjects  train {sorted(set(groups[tr].tolist()))}  "
           f"val {sorted(set(groups[va].tolist()))}  test {sorted(set(groups[te].tolist()))}")
+
+    # Per-channel z-scoring with statistics from the TRAINING subjects only;
+    # val/test subjects are transformed with those statistics but never shape them.
+    mean = X[tr].mean(axis=(0, 2), keepdims=True)
+    std = X[tr].std(axis=(0, 2), keepdims=True) + 1e-6
+    X = ((X - mean) / std).astype(np.float32)
 
     n_ch, n_t = X.shape[1], X.shape[2]
     model = EEGNet(n_ch, n_t)
