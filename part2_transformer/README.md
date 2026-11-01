@@ -65,7 +65,16 @@ lucky spike you can't explain.
 
 ## Your write-up (fill this in)
 
-**Hypothesis:**
+**Hypothesis:** (fixed before YourModel was implemented or trained)
+For bilateral fists-vs-feet the class information is a *spatial* pattern of
+mu/beta power (lateral hand areas vs the medial vertex, an anterior-posterior /
+medial-lateral contrast), not sample-level timing; making each **electrode** a
+token, summarised by a shared conv band-power stem, lets attention model that
+inter-electrode contrast directly over 65 tokens instead of 482 time samples,
+which should generalise across subjects at least as well as the vanilla
+transformer with fewer parameters and lower seed variance, and its
+CLS-to-electrode attention should concentrate on the sensorimotor strip
+(C3/Cz/C4 region) rather than on frontal (ocular) sites.
 
 **What I changed and why:**
 
