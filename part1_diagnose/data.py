@@ -17,7 +17,13 @@ RUNS = [6, 10, 14]
 SUBJECTS = list(range(1, 11))
 
 L_FREQ, H_FREQ = 1.0, 40.0   # broadband filter applied to the continuous recording
-TMIN, TMAX = -2.0, 5.0       # epoch window around the cue (s)
+# Epoch window around the cue (s). A trial is 4.1 s of cue then 4.2 s of rest,
+# and the LAST cue of a run ends exactly when the recording ends (e.g. onset
+# 118.9 s in a 123.0 s run). TMAX=5.0 therefore ran past the end of the run (or
+# across the run boundary after concatenation) and MNE silently dropped the last
+# trial of every run (TOO_SHORT / BAD boundary): 3 of 45 trials per subject,
+# 30 of 450 overall. TMAX = 4.0 = end of the analysed crop keeps every trial.
+TMIN, TMAX = -2.0, 4.0
 CROP = (0.0, 4.0)            # part of each trial the network sees (s)
 EVENT_ID = dict(hands=1, feet=2)
 
@@ -47,6 +53,10 @@ def epoch_subject(subject):
     events = get_events(raw)
     epochs = mne.Epochs(raw, events, EVENT_ID, TMIN, TMAX, baseline=None,
                         preload=True, verbose="error")
+    n_drop = sum(bool(r) for r in epochs.drop_log)
+    if n_drop:
+        print(f"  S{subject:03d}: {n_drop} of {len(events)} epochs dropped "
+              f"({sorted(set(sum(map(list, epochs.drop_log), [])))})")
     X = epochs.copy().crop(*CROP).get_data(copy=True) * 1e6
     y = epochs.events[:, 2] - 1
     return X.astype(np.float32), y.astype(np.int64), epochs.ch_names
