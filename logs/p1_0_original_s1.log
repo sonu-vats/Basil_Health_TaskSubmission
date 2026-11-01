@@ -1,0 +1,33 @@
+data: (420, 64, 641), subjects=10, class balance=[210 210]
+EEGNet: 2898 params
+epoch   0  loss 0.826  val 0.559  test 0.571
+epoch   1  loss 0.722  val 0.647  test 0.631
+epoch   2  loss 0.589  val 0.588  test 0.667
+epoch   3  loss 0.770  val 0.588  test 0.631
+epoch   4  loss 0.636  val 0.603  test 0.655
+epoch   5  loss 0.629  val 0.559  test 0.690
+epoch   6  loss 0.528  val 0.574  test 0.690
+epoch   7  loss 0.711  val 0.618  test 0.679
+epoch   8  loss 0.660  val 0.632  test 0.679
+epoch   9  loss 0.618  val 0.676  test 0.679
+epoch  10  loss 0.597  val 0.632  test 0.702
+epoch  11  loss 0.479  val 0.676  test 0.690
+epoch  12  loss 0.624  val 0.676  test 0.702
+epoch  13  loss 0.578  val 0.676  test 0.702
+epoch  14  loss 0.429  val 0.691  test 0.714
+epoch  15  loss 0.499  val 0.706  test 0.726
+epoch  16  loss 0.540  val 0.662  test 0.714
+epoch  17  loss 0.600  val 0.676  test 0.690
+epoch  18  loss 0.486  val 0.647  test 0.750
+epoch  19  loss 0.560  val 0.662  test 0.738
+epoch  20  loss 0.448  val 0.676  test 0.714
+epoch  21  loss 0.335  val 0.676  test 0.738
+epoch  22  loss 0.567  val 0.676  test 0.726
+epoch  23  loss 0.432  val 0.676  test 0.750
+epoch  24  loss 0.471  val 0.662  test 0.726
+epoch  25  loss 0.422  val 0.676  test 0.702
+epoch  26  loss 0.331  val 0.691  test 0.690
+epoch  27  loss 0.410  val 0.676  test 0.714
+epoch  28  loss 0.321  val 0.721  test 0.702
+epoch  29  loss 0.478  val 0.676  test 0.726
+{"channels": "all", "seed": 1, "best_epoch": 18, "test_acc": 0.75, "n_test": 84, "tag": "0-original", "commit": "7a4d278"}

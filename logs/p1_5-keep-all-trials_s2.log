@@ -1,0 +1,34 @@
+data: (450, 64, 641), subjects=10, class balance=[224 226]
+subjects  train [1, 4, 6, 8, 9, 10]  val [3, 7]  test [2, 5]
+EEGNet: 2898 params
+epoch   0  loss 0.762  val 0.611  val_loss 0.688
+epoch   1  loss 0.699  val 0.611  val_loss 0.688
+epoch   2  loss 0.621  val 0.567  val_loss 0.692
+epoch   3  loss 0.515  val 0.556  val_loss 0.701
+epoch   4  loss 0.747  val 0.544  val_loss 0.719
+epoch   5  loss 0.565  val 0.556  val_loss 0.731
+epoch   6  loss 0.833  val 0.589  val_loss 0.748
+epoch   7  loss 0.718  val 0.600  val_loss 0.760
+epoch   8  loss 0.642  val 0.600  val_loss 0.762
+epoch   9  loss 0.739  val 0.611  val_loss 0.759
+epoch  10  loss 0.566  val 0.611  val_loss 0.761
+epoch  11  loss 0.454  val 0.622  val_loss 0.767
+epoch  12  loss 0.591  val 0.600  val_loss 0.775
+epoch  13  loss 0.628  val 0.600  val_loss 0.780
+epoch  14  loss 0.594  val 0.589  val_loss 0.770
+epoch  15  loss 0.457  val 0.600  val_loss 0.759
+epoch  16  loss 0.585  val 0.600  val_loss 0.755
+epoch  17  loss 0.497  val 0.600  val_loss 0.756
+epoch  18  loss 0.468  val 0.589  val_loss 0.764
+epoch  19  loss 0.531  val 0.589  val_loss 0.773
+epoch  20  loss 0.639  val 0.567  val_loss 0.780
+epoch  21  loss 0.536  val 0.578  val_loss 0.778
+epoch  22  loss 0.510  val 0.600  val_loss 0.798
+epoch  23  loss 0.727  val 0.633  val_loss 0.807
+epoch  24  loss 0.525  val 0.622  val_loss 0.802
+epoch  25  loss 0.380  val 0.589  val_loss 0.801
+epoch  26  loss 0.362  val 0.589  val_loss 0.825
+epoch  27  loss 0.478  val 0.578  val_loss 0.843
+epoch  28  loss 0.478  val 0.556  val_loss 0.845
+epoch  29  loss 0.574  val 0.567  val_loss 0.845
+{"channels": "all", "seed": 2, "best_epoch": 23, "test_acc": 0.7111111111111111, "n_test": 90, "val_acc": 0.6333333333333333, "last_epoch_test_acc": 0.7222222222222222, "test_subjects": [2, 5], "tag": "5-keep-all-trials", "commit": "ab039e7"}

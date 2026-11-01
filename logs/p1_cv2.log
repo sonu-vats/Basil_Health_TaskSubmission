@@ -1,0 +1,3 @@
+CV (central, seed 0): mean 0.549  folds [0.633, 0.467, 0.5, 0.633, 0.511]
+CV (central, seed 1): mean 0.484  folds [0.522, 0.456, 0.5, 0.467, 0.478]
+DONE2
