@@ -15,7 +15,11 @@ import matplotlib.pyplot as plt
 from data import load_raw, get_events, EVENT_ID, TMIN, TMAX, SUBJECTS
 
 BANDS = {"mu": (8.0, 13.0), "beta": (13.0, 30.0)}
-BASELINE = (0.0, 0.5)   # rest period before the imagery starts (s)
+# Reference window = pre-cue rest. t=0 is CUE ONSET, so (0, 0.5) was already
+# inside the trial (visual evoked burst + ERD onset). The T0 rest runs from
+# -4.2 to 0 s; -1.5..-0.5 s avoids the previous trial's post-movement rebound
+# and any anticipation right before the (regularly timed) cue.
+BASELINE = (-1.5, -0.5)
 PICKS = ["C3", "Cz", "C4"]
 
 
