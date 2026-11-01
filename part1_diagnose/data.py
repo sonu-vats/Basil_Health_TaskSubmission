@@ -46,10 +46,11 @@ def get_events(raw):
     return events
 
 
-def epoch_subject(subject):
+def epoch_subject(subject, band=None):
     """Return X (n_trials, 64, n_times) in microvolts, y (0=hands, 1=feet), ch_names."""
     raw = load_raw(subject)
-    raw.filter(L_FREQ, H_FREQ, fir_design="firwin", verbose="error")
+    l_freq, h_freq = band if band is not None else (L_FREQ, H_FREQ)
+    raw.filter(l_freq, h_freq, fir_design="firwin", verbose="error")
     events = get_events(raw)
     epochs = mne.Epochs(raw, events, EVENT_ID, TMIN, TMAX, baseline=None,
                         preload=True, verbose="error")
@@ -62,10 +63,11 @@ def epoch_subject(subject):
     return X.astype(np.float32), y.astype(np.int64), epochs.ch_names
 
 
-def build_dataset(subjects=SUBJECTS):
-    """Stack all subjects. `groups` holds the subject id of every trial."""
+def build_dataset(subjects=SUBJECTS, band=None):
+    """Stack all subjects. `groups` holds the subject id of every trial.
+    `band=(l, h)` overrides the default 1-40 Hz filter (used for confound checks)."""
     Xs, ys, gs = [], [], []
     for s in subjects:
-        X, y, ch_names = epoch_subject(s)
+        X, y, ch_names = epoch_subject(s, band=band)
         Xs.append(X); ys.append(y); gs.append(np.full(len(y), s))
     return np.concatenate(Xs), np.concatenate(ys), np.concatenate(gs), ch_names
