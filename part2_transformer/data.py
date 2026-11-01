@@ -71,17 +71,41 @@ def get_channel_positions():
     return pos
 
 
-def load_data(standardize=True):
-    """Return (Xtr, ytr, Xte, yte). Cross-subject split: train 1-8, test 9-10."""
-    Xtr, ytr = _load_subjects(TRAIN_SUBJECTS)
+def load_data(standardize=True, val_subjects=None):
+    """Return (Xtr, ytr, Xte, yte). Cross-subject split: train 1-8, test 9-10.
+
+    If `val_subjects` is given (a subset of TRAIN_SUBJECTS), those subjects are
+    removed from training and returned as a validation set, i.e. the function
+    returns (Xtr, ytr, Xva, yva, Xte, yte). This lets us pick checkpoints /
+    hyper-parameters on held-out TRAINING subjects, never on subjects 9-10.
+    z-score statistics always come from the fitting subjects only.
+    """
+    val_subjects = list(val_subjects or [])
+    assert set(val_subjects) <= set(TRAIN_SUBJECTS), "validation must come from training subjects"
+    fit_subjects = [s for s in TRAIN_SUBJECTS if s not in val_subjects]
+    Xtr, ytr = _load_subjects(fit_subjects)
     Xte, yte = _load_subjects(TEST_SUBJECTS)
+    Xva, yva = _load_subjects(val_subjects) if val_subjects else (None, None)
     if standardize:
-        # Per-channel z-score using TRAIN statistics only (no test leakage).
+        # Per-channel z-score using FIT-subject statistics only (no val/test leakage).
         mu = Xtr.mean(axis=(0, 2), keepdims=True)
         sd = Xtr.std(axis=(0, 2), keepdims=True) + 1e-6
         Xtr = (Xtr - mu) / sd
         Xte = (Xte - mu) / sd
+        if Xva is not None:
+            Xva = (Xva - mu) / sd
+    if val_subjects:
+        return Xtr, ytr, Xva, yva, Xte, yte
     return Xtr, ytr, Xte, yte
+
+
+def get_channel_names():
+    """Channel names in the same order as X (dots stripped)."""
+    fnames = eegbci.load_data(1, RUNS[:1], verbose="ERROR")
+    raw = read_raw_edf(fnames[0], preload=False, verbose="ERROR")
+    raw.rename_channels(lambda c: c.strip("."))
+    picks = mne.pick_types(raw.info, eeg=True, exclude="bads")
+    return [raw.ch_names[p] for p in picks]
 
 
 if __name__ == "__main__":
