@@ -1,0 +1,57 @@
+device: cpu  seeds: [0, 1, 2, 3, 4]  epochs: 40
+
+loading data...
+  [fixed] (360, 64, 481)  (90, 64, 481)
+
+=== EEGNet  (2,738 params) ===
+  seed 0  [fixed S1-8]  final_test 0.544  (diagnostic peak_test 0.622 @ep35)  107s
+  seed 1  [fixed S1-8]  final_test 0.578  (diagnostic peak_test 0.578 @ep39)  121s
+  seed 2  [fixed S1-8]  final_test 0.611  (diagnostic peak_test 0.622 @ep32)  162s
+  seed 3  [fixed S1-8]  final_test 0.522  (diagnostic peak_test 0.589 @ep6)  146s
+  seed 4  [fixed S1-8]  final_test 0.500  (diagnostic peak_test 0.533 @ep31)  138s
+
+=== TemporalPatch(starter)  (232,898 params) ===
+  seed 0  [fixed S1-8]  final_test 0.456  (diagnostic peak_test 0.556 @ep8)  15s
+  seed 1  [fixed S1-8]  final_test 0.489  (diagnostic peak_test 0.622 @ep9)  15s
+  seed 2  [fixed S1-8]  final_test 0.556  (diagnostic peak_test 0.611 @ep13)  15s
+  seed 3  [fixed S1-8]  final_test 0.522  (diagnostic peak_test 0.600 @ep0)  15s
+  seed 4  [fixed S1-8]  final_test 0.500  (diagnostic peak_test 0.600 @ep24)  15s
+
+=== YourModel  (108,482 params) ===
+  seed 0  [fixed S1-8]  final_test 0.511  (diagnostic peak_test 0.544 @ep1)  216s
+  seed 1  [fixed S1-8]  final_test 0.511  (diagnostic peak_test 0.600 @ep8)  217s
+  seed 2  [fixed S1-8]  final_test 0.578  (diagnostic peak_test 0.622 @ep35)  214s
+  seed 3  [fixed S1-8]  final_test 0.544  (diagnostic peak_test 0.622 @ep37)  211s
+  seed 4  [fixed S1-8]  final_test 0.522  (diagnostic peak_test 0.544 @ep11)  215s
+
+=== Ablation:ElectrodeTokens-NoAttn  (16,066 params) ===
+  seed 0  [fixed S1-8]  final_test 0.544  (diagnostic peak_test 0.589 @ep2)  121s
+  seed 1  [fixed S1-8]  final_test 0.522  (diagnostic peak_test 0.544 @ep1)  124s
+  seed 2  [fixed S1-8]  final_test 0.567  (diagnostic peak_test 0.600 @ep23)  126s
+  seed 3  [fixed S1-8]  final_test 0.556  (diagnostic peak_test 0.578 @ep30)  127s
+  seed 4  [fixed S1-8]  final_test 0.500  (diagnostic peak_test 0.544 @ep36)  124s
+
+================ SUMMARY (test = subjects 9-10) ================
+
+EEGNet  params=2,738  mean train time 135s/seed
+   fixed budget (headline)  mean 0.551  std 0.044  best 0.611  worst 0.500  (n=5)
+   peak test [OPTIMISTIC]   mean 0.589  std 0.037  best 0.622  worst 0.533  (n=5)
+
+TemporalPatch(starter)  params=232,898  mean train time 15s/seed
+   fixed budget (headline)  mean 0.504  std 0.037  best 0.556  worst 0.456  (n=5)
+   peak test [OPTIMISTIC]   mean 0.598  std 0.025  best 0.622  worst 0.556  (n=5)
+
+YourModel  params=108,482  mean train time 215s/seed
+   fixed budget (headline)  mean 0.533  std 0.028  best 0.578  worst 0.511  (n=5)
+   peak test [OPTIMISTIC]   mean 0.587  std 0.040  best 0.622  worst 0.544  (n=5)
+
+Ablation:ElectrodeTokens-NoAttn  params=16,066  mean train time 125s/seed
+   fixed budget (headline)  mean 0.538  std 0.027  best 0.567  worst 0.500  (n=5)
+   peak test [OPTIMISTIC]   mean 0.571  std 0.026  best 0.600  worst 0.544  (n=5)
+
+saving figures (YourModel, seed 0, fixed protocol, final-epoch weights)...
+  saved /home/claude/repo/part2_transformer/figure.png
+  top-8 attended electrodes: ['C6', 'Tp8', 'Poz', 'T8', 'Fc1', 'F6', 'Fp1', 'P6']
+  saved /home/claude/repo/part2_transformer/attention_topomap.png
+
+done. Best AND worst are reported above - no cherry-picking.

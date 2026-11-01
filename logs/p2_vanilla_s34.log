@@ -1,0 +1,6 @@
+device: cpu  seeds: [3, 4]  epochs: 40
+
+loading data...
+  [fixed] (360, 64, 481)  (90, 64, 481)
+
+=== VanillaTransformer  (135,746 params) ===

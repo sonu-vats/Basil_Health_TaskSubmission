@@ -76,8 +76,16 @@ transformer with fewer parameters and lower seed variance, and its
 CLS-to-electrode attention should concentrate on the sensorimotor strip
 (C3/Cz/C4 region) rather than on frontal (ocular) sites.
 
-**What I changed and why:**
+**What I changed and why:** one token per electrode instead of one per time
+sample (65 vs 482 tokens), each built by a shared conv filter bank -> log power
+in 0.5 s windows -> linear map, plus a learned electrode-identity embedding;
+encoder/CLS/head identical to the vanilla model. Full reasoning in
+`../ANSWERS.md` (Part 2).
 
-**Results (best / worst / mean across seeds):**
+**Results (best / worst / mean across seeds):** see the table in `../ANSWERS.md`
+(fixed 40-epoch budget, test subjects scored once, seeds 0-4) and
+`results.jsonl`.
 
-**Figure:**
+**Figure:** `figure.png` = t-SNE of YourModel CLS embeddings on subjects 9-10,
+coloured by true class, predicted class and subject; the two clusters are the
+model's decision regions, not the classes (see `../ANSWERS.md`).

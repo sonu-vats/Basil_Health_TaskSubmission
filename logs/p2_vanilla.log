@@ -1,0 +1,8 @@
+device: cpu  seeds: [0, 1, 2, 3, 4]  epochs: 40
+
+loading data...
+  [fixed] (360, 64, 481)  (90, 64, 481)
+
+=== VanillaTransformer  (135,746 params) ===
+  seed 0  [fixed S1-8]  final_test 0.500  (diagnostic peak_test 0.600 @ep35)  2342s
+  seed 1  [fixed S1-8]  final_test 0.500  (diagnostic peak_test 0.589 @ep27)  1873s
