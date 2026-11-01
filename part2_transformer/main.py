@@ -25,7 +25,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from data import load_data, get_channel_positions, get_channel_names
+from data import (load_data, get_channel_positions, get_channel_names,
+                  get_trial_subjects, TEST_SUBJECTS)
 from models import EEGNet, VanillaEEGTransformer, count_params
 from train import train_model, set_seed
 
@@ -226,8 +227,10 @@ def summarise(name, vals):
             f"best {v.max():.3f}  worst {v.min():.3f}  (n={len(v)})")
 
 
-def save_figure(model, Xte, yte, device, path):
-    """t-SNE of the CLS embeddings on the test subjects, coloured by class."""
+def save_figure(model, Xte, yte, device, path, subj=None):
+    """t-SNE of the CLS embeddings on the test subjects: coloured by class
+    (left) and by subject (right). The right panel checks whether the embedding
+    is organised by person rather than by imagined movement."""
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -241,14 +244,22 @@ def save_figure(model, Xte, yte, device, path):
     n = len(emb)
     emb2 = TSNE(n_components=2, perplexity=min(30, max(5, n // 4)),
                 init="pca", random_state=0).fit_transform(emb)
-    plt.figure(figsize=(5, 4))
+    panels = 2 if subj is not None else 1
+    fig, axes = plt.subplots(1, panels, figsize=(5 * panels, 4), squeeze=False)
+    ax = axes[0, 0]
     for c, name in [(0, "fists"), (1, "feet")]:
         m = yte == c
-        plt.scatter(emb2[m, 0], emb2[m, 1], s=18, alpha=0.7, label=name)
-    plt.legend()
-    plt.title(f"Test subjects 9-10, YourModel CLS embedding\n(t-SNE, first seed, test acc {acc:.2f})",
-              fontsize=9)
-    plt.tight_layout(); plt.savefig(path, dpi=130); plt.close()
+        ax.scatter(emb2[m, 0], emb2[m, 1], s=18, alpha=0.7, label=name)
+    ax.legend(); ax.set_title(f"coloured by class (test acc {acc:.2f})", fontsize=9)
+    if subj is not None:
+        ax = axes[0, 1]
+        for s_id, mk in zip(np.unique(subj), ["o", "s", "^", "D"]):
+            m = subj == s_id
+            ax.scatter(emb2[m, 0], emb2[m, 1], s=18, alpha=0.7, marker=mk, label=f"S{s_id}")
+        ax.legend(); ax.set_title("same points coloured by subject", fontsize=9)
+    fig.suptitle("YourModel CLS embeddings of held-out subjects 9-10 (t-SNE, first seed, "
+                 "final-epoch weights)", fontsize=9)
+    fig.tight_layout(); fig.savefig(path, dpi=130); plt.close(fig)
     print(f"  saved {path}")
 
 
@@ -262,6 +273,8 @@ def main():
                     choices=["fixed", "val"])
     ap.add_argument("--quick", action="store_true", help="1 seed smoke test")
     ap.add_argument("--no-log", action="store_true")
+    ap.add_argument("--figure-only", action="store_true",
+                    help="retrain YourModel for the first seed only and redraw the figures")
     args = ap.parse_args()
     if args.quick:
         args.seeds = [0]
@@ -285,6 +298,8 @@ def main():
 
     zoo = model_zoo(C, T)
     names = args.models or list(zoo)
+    if args.figure_only:
+        names, args.seeds, args.no_log = ["YourModel"], args.seeds[:1], True
     summary, fig_model = {}, None
     for name in names:
         build = zoo[name]
@@ -339,7 +354,9 @@ def main():
         print(f"\nsaving figures (YourModel, seed {args.seeds[0]}, fixed protocol, final-epoch weights)...")
         Xtr, ytr, Xte, yte = data["fixed"]
         ym = fig_model
-        save_figure(ym, Xte, yte, device, os.path.join(HERE, "figure.png"))
+        torch.save(ym.state_dict(), os.path.join(HERE, "yourmodel_seed%d.pt" % args.seeds[0]))
+        save_figure(ym, Xte, yte, device, os.path.join(HERE, "figure.png"),
+                    subj=get_trial_subjects(TEST_SUBJECTS))
         if hasattr(ym, "save_attention_topomap"):
             ym.save_attention_topomap(Xte, yte, get_channel_positions(), get_channel_names(),
                                       os.path.join(HERE, "attention_topomap.png"), device)

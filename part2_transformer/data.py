@@ -99,6 +99,15 @@ def load_data(standardize=True, val_subjects=None):
     return Xtr, ytr, Xte, yte
 
 
+def get_trial_subjects(subjects):
+    """Subject id of every trial, in the same order _load_subjects(subjects) returns them."""
+    ids = []
+    for s in subjects:
+        _, y = _load_subjects([s])
+        ids.append(np.full(len(y), s))
+    return np.concatenate(ids)
+
+
 def get_channel_names():
     """Channel names in the same order as X (dots stripped)."""
     fnames = eegbci.load_data(1, RUNS[:1], verbose="ERROR")
