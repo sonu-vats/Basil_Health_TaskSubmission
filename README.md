@@ -1,4 +1,4 @@
-# EEG × Deep Learning — Live Exam (3 hours)
+# EEG × Deep Learning — 
 
 Two parts, 90 minutes each, with a 5-minute break between them. Read the
 problem-statement PDF for the full brief; this file is the map.
@@ -58,7 +58,7 @@ walkthrough with Q&A. Details in the PDF.
 
 ---
 
-## My submission (Mohit)
+## My submission
 
 | File | What it is |
 | --- | --- |
