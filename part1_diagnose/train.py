@@ -35,13 +35,16 @@ def set_seed(seed):
     np.random.seed(seed); torch.manual_seed(seed)
 
 
-def evaluate(model, X, y, bs=256):
-    model.eval(); correct = 0
+def evaluate(model, X, y, bs=256, return_loss=False):
+    model.eval(); correct = 0; loss = 0.0
     with torch.no_grad():
         for i in range(0, len(y), bs):
             xb = torch.from_numpy(X[i:i + bs]); yb = torch.from_numpy(y[i:i + bs])
-            correct += (model(xb).argmax(1) == yb).sum().item()
-    return correct / len(y)
+            logits = model(xb)
+            correct += (logits.argmax(1) == yb).sum().item()
+            loss += nn.functional.cross_entropy(logits, yb, reduction="sum").item()
+    acc = correct / len(y)
+    return (acc, loss / len(y)) if return_loss else acc
 
 
 def main():
@@ -94,7 +97,10 @@ def main():
     loss_fn = nn.CrossEntropyLoss()
     rng = np.random.default_rng(args.seed)
 
-    best_acc, best_state, best_ep = -1.0, None, -1
+    # Checkpoint selection uses the VALIDATION subjects only (best val accuracy,
+    # ties broken by lower val loss). The test subjects are scored exactly once,
+    # after training, so the reported number is not the max of many test looks.
+    best_val, best_state, best_ep = (-1.0, np.inf), None, -1
     for ep in range(args.epochs):
         model.train()
         order = rng.permutation(tr)
@@ -102,16 +108,17 @@ def main():
             b = order[i:i + args.bs]
             xb, yb = torch.from_numpy(X[b]), torch.from_numpy(y[b])
             opt.zero_grad(); loss = loss_fn(model(xb), yb); loss.backward(); opt.step()
-        va_acc = evaluate(model, X[va], y[va])
-        te_acc = evaluate(model, X[te], y[te])
-        if te_acc > best_acc:   # keep the best checkpoint
-            best_acc, best_ep = te_acc, ep
+        va_acc, va_loss = evaluate(model, X[va], y[va], return_loss=True)
+        if va_acc > best_val[0] or (va_acc == best_val[0] and va_loss < best_val[1]):
+            best_val, best_ep = (va_acc, va_loss), ep
             best_state = {k: v.clone() for k, v in model.state_dict().items()}
-        print(f"epoch {ep:3d}  loss {loss.item():.3f}  val {va_acc:.3f}  test {te_acc:.3f}")
+        print(f"epoch {ep:3d}  loss {loss.item():.3f}  val {va_acc:.3f}  val_loss {va_loss:.3f}")
 
+    final_test = evaluate(model, X[te], y[te])        # last-epoch model, for reference
     model.load_state_dict(best_state)
     result = dict(channels=args.channels, seed=args.seed, best_epoch=best_ep,
                   test_acc=evaluate(model, X[te], y[te]), n_test=len(te),
+                  val_acc=best_val[0], last_epoch_test_acc=final_test,
                   test_subjects=sorted(set(groups[te].tolist())),
                   tag=args.tag, commit=_git_commit())
     print(json.dumps(result))
